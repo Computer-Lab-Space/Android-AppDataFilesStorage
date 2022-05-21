@@ -1,0 +1,2 @@
+rootProject.name = "App Specific Storage"
+include ':app'
