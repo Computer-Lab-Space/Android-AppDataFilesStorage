@@ -26,10 +26,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     EditText userNameEditText;
     CheckBox externalStorageChkBox;
+    CheckBox cacheChkBox;
     Button saveBtn;
     Context context;
     String userName = "";
     File externalFileRef = null;
+    File cacheFileRef = null;
     private static final String FILE_NAME = "user_name";
 
     @Override
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         userNameEditText = findViewById(R.id.userNameEditText);
         externalStorageChkBox = findViewById(R.id.externalStorageId);
+        cacheChkBox = findViewById(R.id.cacheChkBoxId);
         saveBtn = findViewById(R.id.saveBtn);
         saveBtn.setOnClickListener(this);
         context = getApplicationContext();
@@ -52,6 +55,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if(isUserNameFileExistInExternalStorage()) {
             try {
                 FileInputStream fis = new FileInputStream(externalFileRef);
+                userName = readUserNameFromInputStream(fis);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else if(isUserNameFileExistInCache()) {
+            try {
+                FileInputStream fis = new FileInputStream(cacheFileRef);
                 userName = readUserNameFromInputStream(fis);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -79,6 +89,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
+    public boolean isUserNameFileExistInCache() {
+        File tempFolder = context.getCacheDir();
+        if(tempFolder.isDirectory()) {
+            File[] tempFiles = tempFolder.listFiles();
+            for(File tempFile: tempFiles) {
+                if(tempFile.getName().contains(FILE_NAME)) {
+                    cacheFileRef = tempFile;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean isUserNameFileExistInExternalStorage() {
         File[] externalStorageVolumes = ContextCompat.getExternalFilesDirs(context, null);
         for (File externalFile : externalStorageVolumes) {
@@ -100,8 +124,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 writeIntoExternalStorage();
             }
+        } else if (cacheChkBox.isChecked()) {
+            if(isUserNameFileExistInCache()) {
+                writeIntoOutputStream(externalFileRef);
+            } else {
+                writeIntoCache();
+            }
         } else {
             writeIntoInternalStorage();
+        }
+    }
+
+    private void writeIntoCache() {
+        try {
+            File file = File.createTempFile(FILE_NAME, ".txt", context.getCacheDir());
+            writeIntoOutputStream(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeIntoOutputStream(File file) {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            fos.write(userName.getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -119,14 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (externalStorageVolumes != null && externalStorageVolumes.length > 0) {
             File directory = externalStorageVolumes[0];
             File file = new File(directory.getPath() + File.separator + FILE_NAME);
-            try {
-                FileOutputStream fos = new FileOutputStream(file);
-                fos.write(userName.getBytes());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            writeIntoOutputStream(file);
         }
     }
 
