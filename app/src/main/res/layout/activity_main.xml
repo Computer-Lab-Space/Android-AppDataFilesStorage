@@ -25,7 +25,7 @@
         android:layout_height="47dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Name"
+        android:text=""
         android:textAlignment="inherit"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -42,10 +42,10 @@
         android:text="Save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.433"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.547" />
+        app:layout_constraintVertical_bias="0.797" />
 
     <CheckBox
         android:id="@+id/externalStorageId"
@@ -56,5 +56,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/userNameEditText" />
+
+    <CheckBox
+        android:id="@+id/cacheChkBoxId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cache"
+        app:layout_constraintBottom_toTopOf="@+id/saveBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/externalStorageId" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
